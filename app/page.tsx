@@ -11,26 +11,27 @@ export default function Home() {
   const [firstName, setFirstName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    try {
-      await fetch(
-        "https://services.leadconnectorhq.com/hooks/EakYnXEQy1hvVFmdShYB/webhook-trigger/07d0315b-289e-461d-9b8a-5d84fdcb0404",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, firstName }),
-          mode: "no-cors",
-        }
-      );
+    const webhookUrl = "https://services.leadconnectorhq.com/hooks/EakYnXEQy1hvVFmdShYB/webhook-trigger/07d0315b-289e-461d-9b8a-5d84fdcb0404";
+    const data = JSON.stringify({ email, firstName });
+
+    // Use sendBeacon to ensure data is sent before navigation
+    const sent = navigator.sendBeacon(webhookUrl, data);
+
+    if (sent) {
       router.push("/success");
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      setIsSubmitting(false);
+    } else {
+      // Fallback: use fetch with a delay
+      fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: data,
+        mode: "no-cors",
+      });
+      setTimeout(() => router.push("/success"), 500);
     }
   };
 
