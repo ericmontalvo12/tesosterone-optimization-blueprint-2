@@ -1,38 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Dumbbell, Moon, Utensils, Sparkles, Lock, CheckCircle } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const webhookUrl = "https://services.leadconnectorhq.com/hooks/EakYnXEQy1hvVFmdShYB/webhook-trigger/07d0315b-289e-461d-9b8a-5d84fdcb0404";
-    const data = JSON.stringify({ email, firstName });
-
-    // Use sendBeacon to ensure data is sent before navigation
-    const sent = navigator.sendBeacon(webhookUrl, data);
-
-    if (sent) {
-      router.push("/success");
-    } else {
-      // Fallback: use fetch with a delay
-      fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: data,
-        mode: "no-cors",
-      });
-      setTimeout(() => router.push("/success"), 500);
-    }
+  const handleIframeLoad = () => {
+    // Redirect to success page after form submits to iframe
+    router.push("/success");
   };
 
   const benefits = [
@@ -120,37 +99,42 @@ export default function Home() {
               Fix the conditions. Get the blueprint.
             </p>
 
+            {/* Hidden iframe for form submission */}
+            <iframe
+              ref={iframeRef}
+              name="hidden_iframe"
+              id="hidden_iframe"
+              style={{ display: "none" }}
+              onLoad={handleIframeLoad}
+            />
+
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+            <form
+              action="https://services.leadconnectorhq.com/hooks/EakYnXEQy1hvVFmdShYB/webhook-trigger/07d0315b-289e-461d-9b8a-5d84fdcb0404"
+              method="POST"
+              target="hidden_iframe"
+              className="space-y-4 mb-6"
+            >
               <input
                 type="text"
+                name="firstName"
                 placeholder="Enter your name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
                 required
                 className="w-full bg-[#1f2937] border border-[#374151] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#3b82f6] transition-colors"
               />
               <input
                 type="email"
+                name="email"
                 placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full bg-[#1f2937] border border-[#374151] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#3b82f6] transition-colors"
               />
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-[#f59e0b] hover:bg-[#d97706] disabled:bg-[#f59e0b]/70 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
-                {isSubmitting ? (
-                  "SENDING..."
-                ) : (
-                  <>
-                    GET THE FREE BLUEPRINT
-                    <span className="text-lg">→</span>
-                  </>
-                )}
+                GET THE FREE BLUEPRINT
+                <span className="text-lg">→</span>
               </button>
             </form>
 
