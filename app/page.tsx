@@ -8,7 +8,7 @@ import { Dumbbell, Moon, Utensils, Sparkles, Lock, CheckCircle } from "lucide-re
 export default function Home() {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ export default function Home() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, name }),
+          body: JSON.stringify({ email, firstName }),
           mode: "no-cors",
         }
       );
@@ -124,8 +124,8 @@ export default function Home() {
               <input
                 type="text"
                 placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 required
                 className="w-full bg-[#1f2937] border border-[#374151] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#3b82f6] transition-colors"
               />
